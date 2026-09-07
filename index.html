@@ -1,0 +1,1088 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SleepWise — калькулятор сна</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  /* ===================== ПЕРЕМЕННЫЕ ТЕМЫ ===================== */
+  :root {
+    --bg-1: #0b0e1a;
+    --bg-2: #1a1f2e;
+    --accent: #00d4ff;
+    --accent-2: #7b2ffc;
+    --card-bg: rgba(255, 255, 255, 0.05);
+    --card-border: rgba(0, 212, 255, 0.22);
+    --card-glow: rgba(0, 212, 255, 0.16);
+    --text-main: #eaf1fb;
+    --text-soft: #92a0c2;
+    --input-bg: rgba(255, 255, 255, 0.06);
+    --input-border: rgba(255, 255, 255, 0.14);
+    --divider: rgba(255, 255, 255, 0.08);
+    --shadow-btn: rgba(0, 212, 255, 0.35);
+  }
+
+  html.light {
+    --bg-1: #eef2fb;
+    --bg-2: #dbe6f7;
+    --accent: #0091b8;
+    --accent-2: #6a2fd6;
+    --card-bg: rgba(255, 255, 255, 0.65);
+    --card-border: rgba(0, 145, 184, 0.25);
+    --card-glow: rgba(0, 145, 184, 0.14);
+    --text-main: #101a2c;
+    --text-soft: #51607e;
+    --input-bg: rgba(255, 255, 255, 0.9);
+    --input-border: rgba(16, 26, 44, 0.14);
+    --divider: rgba(16, 26, 44, 0.08);
+    --shadow-btn: rgba(0, 145, 184, 0.28);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    font-family: 'Inter', -apple-system, sans-serif;
+    color: var(--text-main);
+    background: linear-gradient(160deg, var(--bg-1), var(--bg-2));
+    background-attachment: fixed;
+    transition: background 0.4s ease, color 0.4s ease;
+    line-height: 1.5;
+  }
+
+  a { color: inherit; }
+
+  /* ===================== ШАПКА ===================== */
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 22px 40px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .logo {
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+
+  .logo span.brand-word {
+    background: linear-gradient(120deg, var(--accent), var(--accent-2));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .contact-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    padding: 11px 22px;
+    border-radius: 999px;
+    background: linear-gradient(120deg, var(--accent), var(--accent-2));
+    color: #fff;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 700;
+    box-shadow: 0 8px 22px var(--shadow-btn);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    white-space: nowrap;
+  }
+
+  .contact-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 10px 26px var(--shadow-btn);
+  }
+
+  .contact-btn .contact-icon { font-size: 15px; }
+
+  /* Переключатель темы в углу */
+  .theme-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 8px;
+    border-radius: 999px;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    cursor: pointer;
+    user-select: none;
+    font-size: 15px;
+  }
+
+  .theme-toggle .track {
+    width: 34px;
+    height: 18px;
+    border-radius: 999px;
+    background: linear-gradient(120deg, var(--accent), var(--accent-2));
+    position: relative;
+  }
+
+  .theme-toggle .knob {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #fff;
+    transition: left 0.25s ease;
+  }
+
+  html.light .theme-toggle .knob { left: 18px; }
+
+  /* ===================== ОСНОВНОЙ КОНТЕЙНЕР ===================== */
+  main {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px 40px 80px;
+  }
+
+  .hero-text {
+    max-width: 620px;
+    margin-bottom: 36px;
+  }
+
+  .hero-text h1 {
+    font-size: 34px;
+    font-weight: 800;
+    margin: 0 0 10px;
+    letter-spacing: -0.02em;
+  }
+
+  .hero-text p {
+    color: var(--text-soft);
+    font-size: 15.5px;
+    margin: 0;
+  }
+
+  .layout-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 24px;
+    align-items: start;
+  }
+
+  /* ===================== КАРТОЧКИ ===================== */
+  .card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 16px;
+    padding: 28px;
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    box-shadow: 0 0 40px var(--card-glow), 0 10px 30px rgba(0,0,0,0.15);
+    margin-bottom: 24px;
+  }
+
+  .card h2 {
+    font-size: 19px;
+    font-weight: 700;
+    margin: 0 0 4px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .card .card-sub {
+    color: var(--text-soft);
+    font-size: 13.5px;
+    margin: 0 0 20px;
+  }
+
+  /* Подсказка про циклы сна */
+  .info-icon {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 1px solid var(--card-border);
+    color: var(--accent);
+    font-size: 12.5px;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    position: relative;
+    flex-shrink: 0;
+  }
+
+  .tooltip-popup {
+    display: none;
+    position: absolute;
+    top: 28px;
+    left: 0;
+    width: 280px;
+    background: var(--bg-2);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    padding: 14px 16px;
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--text-soft);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    z-index: 20;
+    line-height: 1.55;
+  }
+
+  .tooltip-popup.open { display: block; }
+
+  /* Переключатель режимов */
+  .mode-switch {
+    display: flex;
+    gap: 8px;
+    background: var(--input-bg);
+    border: 1px solid var(--input-border);
+    border-radius: 12px;
+    padding: 5px;
+    margin-bottom: 22px;
+  }
+
+  .mode-btn {
+    flex: 1;
+    padding: 10px 12px;
+    border: none;
+    background: transparent;
+    color: var(--text-soft);
+    font-family: inherit;
+    font-size: 13.5px;
+    font-weight: 600;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .mode-btn.active {
+    background: linear-gradient(120deg, var(--accent), var(--accent-2));
+    color: #fff;
+  }
+
+  .field-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 14px;
+    flex-wrap: wrap;
+  }
+
+  .field-group { flex: 1; min-width: 160px; }
+
+  .field-group label {
+    display: block;
+    font-size: 13px;
+    color: var(--text-soft);
+    margin-bottom: 7px;
+    font-weight: 500;
+  }
+
+  .field-group input[type="time"] {
+    width: 100%;
+    padding: 12px 14px;
+    border-radius: 10px;
+    border: 1px solid var(--input-border);
+    background: var(--input-bg);
+    color: var(--text-main);
+    font-family: inherit;
+    font-size: 17px;
+    font-weight: 600;
+  }
+
+  .btn-primary {
+    padding: 12px 26px;
+    border: none;
+    border-radius: 10px;
+    background: linear-gradient(120deg, var(--accent), var(--accent-2));
+    color: #fff;
+    font-family: inherit;
+    font-size: 14.5px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 8px 22px var(--shadow-btn);
+    transition: transform 0.15s ease;
+  }
+
+  .btn-primary:hover { transform: translateY(-1px); }
+  .btn-primary:active { transform: translateY(0); }
+
+  .btn-ghost {
+    padding: 12px 20px;
+    border-radius: 10px;
+    border: 1px solid var(--input-border);
+    background: transparent;
+    color: var(--text-main);
+    font-family: inherit;
+    font-size: 13.5px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .btn-ghost:hover { border-color: var(--accent); }
+
+  .btn-block {
+    width: 100%;
+    text-align: center;
+    margin: 14px 0 22px;
+  }
+
+  /* Дополнительные параметры: возраст и время засыпания */
+  .params-row {
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+  }
+
+  .field-group input[type="number"] {
+    width: 100%;
+    padding: 12px 14px;
+    border-radius: 10px;
+    border: 1px solid var(--input-border);
+    background: var(--input-bg);
+    color: var(--text-main);
+    font-family: inherit;
+    font-size: 16px;
+    font-weight: 600;
+  }
+
+  .field-group label .value-badge {
+    color: var(--accent);
+    font-weight: 700;
+  }
+
+  .field-group input[type="range"] {
+    width: 100%;
+    accent-color: var(--accent);
+    height: 6px;
+    margin-top: 8px;
+    cursor: pointer;
+  }
+
+  .reco-note {
+    font-size: 12.5px;
+    color: var(--text-soft);
+    margin: 16px 0 0;
+    padding-top: 14px;
+    border-top: 1px solid var(--divider);
+  }
+
+  .reco-note strong { color: var(--text-main); }
+
+  /* ===================== РЕЗУЛЬТАТЫ ===================== */
+  .results-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-top: 22px;
+  }
+
+  .result-item {
+    border: 1px solid var(--input-border);
+    background: var(--input-bg);
+    border-radius: 12px;
+    padding: 16px 14px;
+    text-align: center;
+    position: relative;
+  }
+
+  .result-item.best {
+    border-color: var(--accent);
+    box-shadow: 0 0 24px var(--card-glow);
+  }
+
+  .result-item .badge {
+    position: absolute;
+    top: -9px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(120deg, var(--accent), var(--accent-2));
+    color: #fff;
+    font-size: 10.5px;
+    font-weight: 700;
+    padding: 2px 9px;
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+
+  .result-item .time {
+    font-size: 24px;
+    font-weight: 800;
+    margin: 6px 0 4px;
+  }
+
+  .result-item .cycles {
+    font-size: 12.5px;
+    color: var(--text-soft);
+  }
+
+  .empty-state {
+    color: var(--text-soft);
+    font-size: 14px;
+    text-align: center;
+    padding: 20px 0;
+  }
+
+  /* ===================== СОВЕТ ДНЯ ===================== */
+  .tip-of-day {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 18px 20px;
+    background: var(--input-bg);
+    border: 1px solid var(--divider);
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--text-main);
+  }
+
+  .tip-of-day .tip-icon { font-size: 28px; flex-shrink: 0; }
+
+  /* ===================== СТАТИСТИКА ЗА НЕДЕЛЮ ===================== */
+  .stats-summary {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 20px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--divider);
+  }
+
+  .stats-indicator {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  .indicator-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--text-soft);
+    box-shadow: 0 0 10px currentColor;
+    flex-shrink: 0;
+  }
+
+  .indicator-dot.green { background: #2ee6a6; color: #2ee6a6; }
+  .indicator-dot.yellow { background: #ffcf4d; color: #ffcf4d; }
+  .indicator-dot.red { background: #ff6161; color: #ff6161; }
+
+  .stats-metrics { display: flex; gap: 26px; }
+
+  .metric { text-align: center; }
+
+  .metric-value {
+    font-size: 22px;
+    font-weight: 800;
+  }
+
+  .metric-label {
+    font-size: 11px;
+    color: var(--text-soft);
+    margin-top: 2px;
+  }
+
+  .stats-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+
+  .stats-table th,
+  .stats-table td {
+    text-align: left;
+    padding: 9px 8px;
+    border-bottom: 1px solid var(--divider);
+    color: var(--text-soft);
+  }
+
+  .stats-table th {
+    font-weight: 600;
+    color: var(--text-main);
+    font-size: 11.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+
+  .stats-table td.status-ok { color: #2ee6a6; font-weight: 600; }
+  .stats-table td.status-bad { color: #ff8a65; font-weight: 600; }
+
+  .stats-note {
+    font-size: 11.5px;
+    color: var(--text-soft);
+    margin: 14px 0 0;
+  }
+
+  /* ===================== БОКОВОЙ РЕКЛАМНЫЙ БЛОК ===================== */
+  .ad-sidebar {
+    position: sticky;
+    top: 24px;
+    border: 1.5px dashed var(--card-border);
+    background: var(--card-bg);
+    border-radius: 16px;
+    padding: 30px 20px;
+    text-align: center;
+    color: var(--text-soft);
+    font-size: 13.5px;
+  }
+
+  .ad-sidebar .ad-icon { font-size: 30px; margin-bottom: 10px; }
+
+  /* ===================== ПОДВАЛ ===================== */
+  footer {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 40px 40px 60px;
+    border-top: 1px solid var(--divider);
+  }
+
+  footer h3 {
+    font-size: 15px;
+    font-weight: 700;
+    margin: 0 0 16px;
+    color: var(--text-soft);
+  }
+
+  .footer-bottom {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+    font-size: 12.5px;
+    color: var(--text-soft);
+  }
+
+  .footer-bottom a { text-decoration: none; }
+  .footer-bottom a:hover { color: var(--text-main); }
+
+  /* ===================== АДАПТИВНОСТЬ ===================== */
+  @media (max-width: 900px) {
+    header { padding: 18px 20px; flex-wrap: wrap; gap: 12px; justify-content: center; }
+    header > .contact-btn { margin: 0; order: 2; }
+    main { padding: 10px 20px 60px; }
+    .layout-grid { grid-template-columns: 1fr; }
+    .ad-sidebar { position: static; }
+    .results-grid { grid-template-columns: repeat(2, 1fr); }
+    .hero-text h1 { font-size: 27px; }
+  }
+
+  @media (max-width: 480px) {
+    .results-grid { grid-template-columns: 1fr; }
+    .field-row { flex-direction: column; align-items: stretch; }
+  }
+</style>
+</head>
+<body>
+
+  <!-- ===================== ШАПКА САЙТА ===================== -->
+  <header>
+    <div class="logo">💤 Sleep<span class="brand-word">Wise</span></div>
+    <a class="contact-btn" href="https://t.me/m1ndfold" target="_blank" rel="noopener">
+      <span class="contact-icon">✈️</span> Для связи
+    </a>
+    <div class="theme-toggle" id="themeToggle">
+      <span id="themeLabel">🌙</span>
+      <span class="track"><span class="knob"></span></span>
+    </div>
+  </header>
+
+  <main>
+    <div class="hero-text">
+      <h1>Найдите своё идеальное время сна</h1>
+      <p>Калькулятор рассчитывает время по полным 90-минутным циклам сна, чтобы вы просыпались бодрым, а не посреди глубокой фазы.</p>
+    </div>
+
+    <div class="layout-grid">
+      <!-- ===================== ЛЕВАЯ КОЛОНКА: КАЛЬКУЛЯТОР ===================== -->
+      <div>
+        <div class="card">
+          <h2>
+            Калькулятор сна
+            <span class="info-icon" id="infoIcon">?
+              <span class="tooltip-popup" id="tooltipPopup">
+                Сон состоит из циклов примерно по 90 минут, включающих лёгкий, глубокий и REM-сон.
+                Просыпаться в конце цикла, а не в середине, помогает чувствовать себя более отдохнувшим.
+                Мы также добавляем 15 минут — среднее время, которое нужно, чтобы заснуть.
+              </span>
+            </span>
+          </h2>
+          <p class="card-sub">Выберите, что вы хотите рассчитать, и укажите время</p>
+
+          <div class="mode-switch">
+            <button class="mode-btn active" data-mode="wake" id="modeWakeBtn">Рассчитать время пробуждения</button>
+            <button class="mode-btn" data-mode="sleep" id="modeSleepBtn">Рассчитать время засыпания</button>
+          </div>
+
+          <div class="field-row">
+            <div class="field-group">
+              <label id="timeLabel" for="timeInput">Во сколько вы ложитесь спать?</label>
+              <input type="time" id="timeInput" value="23:00">
+            </div>
+            <button class="btn-primary" id="calcBtn">Рассчитать</button>
+          </div>
+
+          <button class="btn-ghost btn-block" id="fallAsleepNowBtn">🛌 Заснуть прямо сейчас</button>
+
+          <div class="params-row">
+            <div class="field-group">
+              <label for="ageInput">Ваш возраст</label>
+              <input type="number" id="ageInput" min="1" max="120" value="30">
+            </div>
+            <div class="field-group">
+              <label for="fallAsleepSlider">Сколько времени вы обычно засыпаете? <span class="value-badge" id="fallAsleepValue">15 мин</span></label>
+              <input type="range" id="fallAsleepSlider" min="5" max="45" step="1" value="15">
+            </div>
+          </div>
+
+          <p class="reco-note" id="ageRecoNote">Рекомендуемая норма сна для вашего возраста: <strong>7–9 часов</strong></p>
+        </div>
+
+        <div class="card" id="resultsCard">
+          <h2>Результаты</h2>
+          <p class="card-sub" id="resultsSub">Оптимальное время подъёма с учётом полных циклов сна</p>
+
+          <div id="resultsContainer">
+            <div class="empty-state">Заполните поле выше и нажмите «Рассчитать»</div>
+          </div>
+
+        </div>
+
+        <div class="card">
+          <h2>📊 Статистика за неделю</h2>
+          <p class="card-sub">На основе ваших расчётов за последние 7 дней в этом браузере</p>
+
+          <div class="stats-summary">
+            <div class="stats-indicator">
+              <span class="indicator-dot" id="indicatorDot"></span>
+              <span id="indicatorLabel">Пока нет данных</span>
+            </div>
+            <div class="stats-metrics">
+              <div class="metric">
+                <div class="metric-value" id="avgCyclesValue">—</div>
+                <div class="metric-label">циклов в среднем</div>
+              </div>
+              <div class="metric">
+                <div class="metric-value" id="undersleepValue">—</div>
+                <div class="metric-label">дней с недосыпом</div>
+              </div>
+            </div>
+          </div>
+
+          <table class="stats-table">
+            <thead>
+              <tr><th>Дата</th><th>Часы сна</th><th>Циклы</th><th>Статус</th></tr>
+            </thead>
+            <tbody id="statsTableBody">
+              <tr><td colspan="4" class="empty-state">Пока нет расчётов</td></tr>
+            </tbody>
+          </table>
+
+          <p class="stats-note">Данные хранятся только в этом браузере (localStorage) и будут удалены при очистке кэша.</p>
+        </div>
+
+        <div class="card">
+          <h2>Совет дня для крепкого сна</h2>
+          <p class="card-sub">Новый совет — при каждом обновлении страницы</p>
+          <div class="tip-of-day" id="tipOfDay">
+            <span class="tip-icon" id="tipIcon">🍽️</span>
+            <span id="tipText">Не ешьте тяжёлую пищу за 2 часа до сна</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===================== ПРАВАЯ КОЛОНКА: РЕКЛАМА ===================== -->
+      <div>
+        <div class="ad-sidebar">
+          <div class="ad-icon">📢</div>
+          Тут могла быть ваша реклама :)
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- ===================== ПОДВАЛ С ПАРТНЁРСКИМИ ССЫЛКАМИ ===================== -->
+  <footer>
+    <div class="footer-bottom">
+      <span>© 2026 SleepWise. Все расчёты выполняются локально в вашем браузере.</span>
+      <span><a href="#">Политика конфиденциальности</a></span>
+    </div>
+  </footer>
+
+<script>
+  // ===================== КОНСТАНТЫ РАСЧЁТА =====================
+  const CYCLE_LENGTH_MIN = 90;   // длительность одного цикла сна в минутах
+  const CYCLE_OPTIONS = [3, 4, 5, 6, 7, 8]; // варианты количества циклов для вывода
+  let fallAsleepMinutes = 15;    // время засыпания — теперь регулируется ползунком
+
+  // Рекомендуемая продолжительность сна по возрастным группам
+  const AGE_BANDS = [
+    { minAge: 14, maxAge: 17, minHours: 8, maxHours: 10 },
+    { minAge: 18, maxAge: 64, minHours: 7, maxHours: 9 },
+    { minAge: 65, maxAge: 200, minHours: 7, maxHours: 8 }
+  ];
+
+  // Возвращает подходящий возрастной диапазон нормы сна
+  function getAgeBand(age) {
+    const band = AGE_BANDS.find(b => age >= b.minAge && age <= b.maxAge);
+    if (band) return band;
+    // Для детей младше 14 лет в калькуляторе нет отдельной нормы — берём ближайший ориентир (подростковый)
+    return age < 14 ? AGE_BANDS[0] : AGE_BANDS[AGE_BANDS.length - 1];
+  }
+
+  const STORAGE_KEY = 'sleepwise-last-calc';
+  const STATS_KEY = 'sleepwise-week-stats';
+  const THEME_KEY = 'sleepwise-theme';
+
+  // Список советов для крепкого сна — при каждой загрузке страницы показывается один случайный
+  const SLEEP_TIPS = [
+    { icon: '🍽️', text: 'Не ешьте тяжёлую пищу за 2 часа до сна' },
+    { icon: '🌬️', text: 'Проветрите комнату перед сном' },
+    { icon: '📱', text: 'Уберите телефон за 30–60 минут до сна' },
+    { icon: '⏰', text: 'Ложитесь и вставайте в одно и то же время' },
+    { icon: '🌡️', text: 'Поддерживайте в спальне температуру 18–20°C' },
+    { icon: '☕', text: 'Ограничьте кофеин после обеда' },
+    { icon: '🧘', text: 'Попробуйте лёгкую растяжку или дыхательные упражнения перед сном' },
+    { icon: '💡', text: 'Приглушите яркий свет за час до сна' },
+    { icon: '🛁', text: 'Тёплый душ перед сном помогает быстрее расслабиться' },
+    { icon: '📚', text: 'Почитайте бумажную книгу вместо экрана перед сном' },
+    { icon: '🏃', text: 'Занимайтесь спортом днём, а не поздно вечером' },
+    { icon: '🛏️', text: 'Используйте кровать только для сна, а не для работы' }
+  ];
+
+  let currentMode = 'wake'; // 'wake' — рассчитать подъём, 'sleep' — рассчитать засыпание
+
+  const timeInput = document.getElementById('timeInput');
+  const timeLabel = document.getElementById('timeLabel');
+  const resultsContainer = document.getElementById('resultsContainer');
+  const resultsSub = document.getElementById('resultsSub');
+  const modeWakeBtn = document.getElementById('modeWakeBtn');
+  const modeSleepBtn = document.getElementById('modeSleepBtn');
+  const ageInput = document.getElementById('ageInput');
+  const fallAsleepSlider = document.getElementById('fallAsleepSlider');
+  const fallAsleepValue = document.getElementById('fallAsleepValue');
+  const ageRecoNote = document.getElementById('ageRecoNote');
+
+  // Обновляем подпись ползунка и переменную сразу при перетаскивании
+  fallAsleepSlider.addEventListener('input', () => {
+    fallAsleepMinutes = Number(fallAsleepSlider.value);
+    fallAsleepValue.textContent = fallAsleepMinutes + ' мин';
+  });
+
+  // Пересчитываем при изменении возраста или окончательном изменении ползунка (если уже есть время)
+  ageInput.addEventListener('change', () => { if (timeInput.value) calculate(); else updateRecoNote(); });
+  fallAsleepSlider.addEventListener('change', () => { if (timeInput.value) calculate(); });
+
+  // Обновляет текст с рекомендуемой нормой сна для текущего возраста
+  function updateRecoNote() {
+    const age = parseInt(ageInput.value, 10) || 30;
+    const band = getAgeBand(age);
+    ageRecoNote.innerHTML = 'Рекомендуемая норма сна для вашего возраста: <strong>' + band.minHours + '–' + band.maxHours + ' часов</strong>';
+    return band;
+  }
+
+  // ===================== ПОМОЩНИКИ ДЛЯ РАБОТЫ СО ВРЕМЕНЕМ =====================
+
+  // Переводит строку "HH:MM" в количество минут от полуночи
+  function timeToMinutes(timeStr) {
+    const [h, m] = timeStr.split(':').map(Number);
+    return h * 60 + m;
+  }
+
+  // Переводит минуты от полуночи обратно в строку "HH:MM" с учётом перехода через сутки
+  function minutesToTime(totalMinutes) {
+    let m = ((totalMinutes % 1440) + 1440) % 1440; // корректно обрабатываем отрицательные значения
+    const h = Math.floor(m / 60);
+    const mm = m % 60;
+    return String(h).padStart(2, '0') + ':' + String(mm).padStart(2, '0');
+  }
+
+  // ===================== ПЕРЕКЛЮЧЕНИЕ РЕЖИМОВ =====================
+  function setMode(mode) {
+    currentMode = mode;
+    modeWakeBtn.classList.toggle('active', mode === 'wake');
+    modeSleepBtn.classList.toggle('active', mode === 'sleep');
+
+    if (mode === 'wake') {
+      timeLabel.textContent = 'Во сколько вы ложитесь спать?';
+      resultsSub.textContent = 'Оптимальное время подъёма с учётом полных циклов сна';
+      if (!timeInput.dataset.userTouched) timeInput.value = '23:00';
+    } else {
+      timeLabel.textContent = 'Во сколько вам нужно проснуться?';
+      resultsSub.textContent = 'Оптимальное время, чтобы лечь спать';
+      if (!timeInput.dataset.userTouched) timeInput.value = '07:00';
+    }
+  }
+
+  modeWakeBtn.addEventListener('click', () => setMode('wake'));
+  modeSleepBtn.addEventListener('click', () => setMode('sleep'));
+  timeInput.addEventListener('input', () => { timeInput.dataset.userTouched = '1'; });
+
+  // ===================== ОСНОВНОЙ РАСЧЁТ =====================
+  function calculate() {
+    if (!timeInput.value) return;
+
+    const band = updateRecoNote();
+    const midHours = (band.minHours + band.maxHours) / 2; // середина рекомендуемого диапазона
+
+    const baseMinutes = timeToMinutes(timeInput.value);
+    const results = CYCLE_OPTIONS.map(cycles => {
+      let targetMinutes;
+      if (currentMode === 'wake') {
+        // Пользователь ложится спать в baseMinutes, засыпает через fallAsleepMinutes,
+        // затем спит cycles циклов по 90 минут
+        targetMinutes = baseMinutes + fallAsleepMinutes + cycles * CYCLE_LENGTH_MIN;
+      } else {
+        // Пользователю нужно проснуться в baseMinutes,
+        // значит лечь нужно за (cycles * 90 + fallAsleepMinutes) минут до этого
+        targetMinutes = baseMinutes - fallAsleepMinutes - cycles * CYCLE_LENGTH_MIN;
+      }
+      return {
+        cycles,
+        time: minutesToTime(targetMinutes),
+        hours: (cycles * CYCLE_LENGTH_MIN / 60)
+      };
+    });
+
+    // Находим вариант, ближе всего подходящий к рекомендуемой норме сна для возраста
+    let bestResult = results[0];
+    let bestDiff = Math.abs(results[0].hours - midHours);
+    results.forEach(r => {
+      const diff = Math.abs(r.hours - midHours);
+      if (diff < bestDiff) { bestDiff = diff; bestResult = r; }
+    });
+
+    renderResults(results, bestResult.cycles);
+    saveToStorage();
+
+    // Сохраняем запись за сегодня для недельной статистики
+    const todayKey = new Date().toISOString().slice(0, 10);
+    const status = bestResult.hours < band.minHours ? 'undersleep' : 'ok';
+    const deviationMin = Math.round(bestResult.hours * 60 - midHours * 60);
+    saveStatsRecord({
+      date: todayKey,
+      cycles: bestResult.cycles,
+      hours: bestResult.hours,
+      deviationMin: deviationMin,
+      status: status,
+      mode: currentMode
+    });
+    renderStats();
+  }
+
+  function renderResults(results, bestCycles) {
+    resultsContainer.innerHTML = '';
+    const grid = document.createElement('div');
+    grid.className = 'results-grid';
+
+    results.forEach(r => {
+      const item = document.createElement('div');
+      item.className = 'result-item' + (r.cycles === bestCycles ? ' best' : '');
+
+      const hoursText = Number.isInteger(r.hours) ? r.hours + ' ч' : r.hours.toFixed(1) + ' ч';
+
+      item.innerHTML =
+        (r.cycles === bestCycles ? '<span class="badge">Ближе к норме</span>' : '') +
+        '<div class="time">' + r.time + '</div>' +
+        '<div class="cycles">' + r.cycles + ' циклов · ' + hoursText + ' сна</div>';
+
+      grid.appendChild(item);
+    });
+
+    resultsContainer.appendChild(grid);
+  }
+
+  document.getElementById('calcBtn').addEventListener('click', calculate);
+
+  // ===================== «ЗАСНУТЬ ПРЯМО СЕЙЧАС» =====================
+  document.getElementById('fallAsleepNowBtn').addEventListener('click', () => {
+    const now = new Date();
+    let totalMinutes = now.getHours() * 60 + now.getMinutes();
+    totalMinutes = Math.round(totalMinutes / 5) * 5; // округляем до ближайших 5 минут
+
+    timeInput.value = minutesToTime(totalMinutes);
+    timeInput.dataset.userTouched = '1';
+
+    setMode('wake');
+    calculate();
+  });
+
+  // ===================== ВСПЛЫВАЮЩАЯ ПОДСКАЗКА О ЦИКЛАХ СНА =====================
+  const infoIcon = document.getElementById('infoIcon');
+  const tooltipPopup = document.getElementById('tooltipPopup');
+
+  infoIcon.addEventListener('click', (e) => {
+    e.stopPropagation();
+    tooltipPopup.classList.toggle('open');
+  });
+
+  document.addEventListener('click', () => {
+    tooltipPopup.classList.remove('open');
+  });
+
+  tooltipPopup.addEventListener('click', (e) => e.stopPropagation());
+
+  // ===================== СТАТИСТИКА ЗА НЕДЕЛЮ =====================
+
+  // Загружает карту записей { 'YYYY-MM-DD': запись } из localStorage
+  function loadStatsMap() {
+    try {
+      return JSON.parse(localStorage.getItem(STATS_KEY)) || {};
+    } catch (e) {
+      return {};
+    }
+  }
+
+  // Сохраняет запись за сегодня (перезаписывает, если в этот день уже был расчёт)
+  function saveStatsRecord(record) {
+    try {
+      const map = loadStatsMap();
+      map[record.date] = record;
+      localStorage.setItem(STATS_KEY, JSON.stringify(map));
+    } catch (e) {
+      // localStorage может быть недоступен — статистика просто не сохранится
+    }
+  }
+
+  // Форматирует "YYYY-MM-DD" в короткую дату вида "07.09"
+  function formatDateShort(dateStr) {
+    const d = new Date(dateStr + 'T00:00:00');
+    return String(d.getDate()).padStart(2, '0') + '.' + String(d.getMonth() + 1).padStart(2, '0');
+  }
+
+  // Отрисовывает карточку статистики на основе записей за последние 7 дней
+  function renderStats() {
+    const map = loadStatsMap();
+    const now = Date.now();
+    const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
+
+    const entries = Object.values(map)
+      .filter(r => now - new Date(r.date + 'T00:00:00').getTime() < WEEK_MS)
+      .sort((a, b) => (a.date < b.date ? 1 : -1)); // сначала свежие
+
+    const indicatorDot = document.getElementById('indicatorDot');
+    const indicatorLabel = document.getElementById('indicatorLabel');
+    const avgCyclesValue = document.getElementById('avgCyclesValue');
+    const undersleepValue = document.getElementById('undersleepValue');
+    const tbody = document.getElementById('statsTableBody');
+
+    if (entries.length === 0) {
+      indicatorDot.className = 'indicator-dot';
+      indicatorLabel.textContent = 'Пока нет данных';
+      avgCyclesValue.textContent = '—';
+      undersleepValue.textContent = '—';
+      tbody.innerHTML = '<tr><td colspan="4" class="empty-state">Пока нет расчётов</td></tr>';
+      return;
+    }
+
+    const avgCycles = entries.reduce((sum, r) => sum + r.cycles, 0) / entries.length;
+    const undersleepCount = entries.filter(r => r.status === 'undersleep').length;
+    const undersleepPercent = Math.round((undersleepCount / entries.length) * 100);
+    const enoughPercent = 100 - undersleepPercent;
+
+    avgCyclesValue.textContent = avgCycles.toFixed(1);
+    undersleepValue.textContent = undersleepPercent + '%';
+
+    let level = 'red';
+    let label = 'Похоже, вы недосыпаете';
+    if (enoughPercent >= 80) {
+      level = 'green';
+      label = 'Отличная неделя сна!';
+    } else if (enoughPercent >= 50) {
+      level = 'yellow';
+      label = 'Сон местами нестабилен';
+    }
+
+    indicatorDot.className = 'indicator-dot ' + level;
+    indicatorLabel.textContent = label;
+
+    tbody.innerHTML = entries.slice(0, 5).map(r => {
+      const statusClass = r.status === 'undersleep' ? 'status-bad' : 'status-ok';
+      const statusText = r.status === 'undersleep' ? 'Недосып' : 'Норма';
+      return '<tr><td>' + formatDateShort(r.date) + '</td><td>' + r.hours.toFixed(1) + ' ч</td><td>' +
+        r.cycles + '</td><td class="' + statusClass + '">' + statusText + '</td></tr>';
+    }).join('');
+  }
+
+  // ===================== СОХРАНЕНИЕ И ВОССТАНОВЛЕНИЕ ИЗ localStorage =====================
+  function saveToStorage() {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({
+        mode: currentMode,
+        time: timeInput.value,
+        age: ageInput.value,
+        fallAsleep: fallAsleepMinutes
+      }));
+    } catch (e) {
+      // localStorage может быть недоступен — не критично для работы калькулятора
+    }
+  }
+
+  function restoreFromStorage() {
+    try {
+      const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+      if (saved && saved.time) {
+        setMode(saved.mode === 'sleep' ? 'sleep' : 'wake');
+        timeInput.value = saved.time;
+        timeInput.dataset.userTouched = '1';
+
+        if (saved.age) ageInput.value = saved.age;
+        if (saved.fallAsleep) {
+          fallAsleepMinutes = saved.fallAsleep;
+          fallAsleepSlider.value = saved.fallAsleep;
+          fallAsleepValue.textContent = saved.fallAsleep + ' мин';
+        }
+
+        calculate();
+      } else {
+        updateRecoNote();
+      }
+    } catch (e) {
+      // если данных нет или они повреждены — просто показываем пустое состояние
+      updateRecoNote();
+    }
+  }
+
+  // ===================== ПЕРЕКЛЮЧЕНИЕ ТЕМЫ =====================
+  const themeToggle = document.getElementById('themeToggle');
+  const themeLabel = document.getElementById('themeLabel');
+
+  function applyTheme(theme) {
+    document.documentElement.classList.toggle('light', theme === 'light');
+    themeLabel.textContent = theme === 'light' ? '☀️' : '🌙';
+    try { localStorage.setItem(THEME_KEY, theme); } catch (e) {}
+  }
+
+  themeToggle.addEventListener('click', () => {
+    const isLight = document.documentElement.classList.contains('light');
+    applyTheme(isLight ? 'dark' : 'light');
+  });
+
+  // ===================== СОВЕТ ДНЯ =====================
+  function showRandomTip() {
+    const tip = SLEEP_TIPS[Math.floor(Math.random() * SLEEP_TIPS.length)];
+    document.getElementById('tipIcon').textContent = tip.icon;
+    document.getElementById('tipText').textContent = tip.text;
+  }
+
+  // ===================== ИНИЦИАЛИЗАЦИЯ ПРИ ЗАГРУЗКЕ =====================
+  (function init() {
+    try {
+      const savedTheme = localStorage.getItem(THEME_KEY);
+      if (savedTheme) applyTheme(savedTheme);
+    } catch (e) {}
+
+    restoreFromStorage();
+    renderStats();
+    showRandomTip();
+  })();
+</script>
+
+</body>
+</html>
